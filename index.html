@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SniffTrails · Italia 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root{
+  --lago:#2B6CB0; --lago-light:#EBF4FF; --lago-dark:#1A4A8A;
+  --terra:#C05621; --terra-light:#FFF0E6; --terra-dark:#8B3A10;
+  --oliva:#2D6A4F; --oliva-light:#E8F5EE; --oliva-dark:#1A4A32;
+  --crema:#FDFAF4; --crema-2:#F5F0E8; --crema-3:#EDE6D6;
+  --ink:#1A1310; --ink-2:#3D2E28; --ink-3:#6B574E; --ink-4:#9C8478;
+  --oro:#B7791F; --oro-light:#FEF3C7;
+  --white:#FFFFFF;
+  --r:4px; --r2:8px; --r3:14px;
+  --shadow:0 2px 12px rgba(26,19,16,.08);
+  --shadow2:0 8px 32px rgba(26,19,16,.14);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --nav-h:56px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--crema);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;overflow:hidden}
+
+/* ── TICKER ── */
+#ticker{height:36px;background:var(--ink);color:var(--crema);display:flex;align-items:center;padding:0 18px;gap:0;font-family:var(--mono);font-size:11px;letter-spacing:.8px;position:relative;z-index:100;flex-shrink:0;overflow:hidden}
+.tick-sep{color:var(--oro);margin:0 12px;opacity:.6}
+#tick-countdown{color:var(--oro);font-weight:600;min-width:160px}
+#tick-date{opacity:.7}
+#tick-region{text-transform:uppercase;letter-spacing:1.2px;font-size:10px}
+.tick-flag{margin-right:8px}
+
+/* ── LAYOUT ── */
+#shell{display:flex;flex-direction:column;height:calc(100vh - 36px)}
+#main{flex:1;display:flex;overflow:hidden}
+#sidebar{width:220px;flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;overflow:hidden}
+#content{flex:1;overflow-y:auto;position:relative}
+
+/* ── SIDEBAR ── */
+.brand{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand-name{font-family:var(--serif);font-size:22px;font-weight:900;color:var(--crema);letter-spacing:-.3px;line-height:1}
+.brand-sub{font-size:10px;color:var(--oro);text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+.nav-list{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-btn{display:flex;align-items:center;gap:11px;width:100%;padding:11px 12px;border:none;background:transparent;color:rgba(253,250,244,.55);font-family:var(--sans);font-size:13.5px;font-weight:500;cursor:pointer;border-radius:var(--r2);transition:all .15s;text-align:left;letter-spacing:.1px;border-left:2px solid transparent}
+.nav-btn:hover{background:rgba(255,255,255,.06);color:var(--crema)}
+.nav-btn.active{background:rgba(255,255,255,.09);color:var(--crema);font-weight:600;border-left-color:var(--oro)}
+.nav-icon{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.nav-section{font-size:9px;color:rgba(253,250,244,.3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 12px 4px;font-weight:600}
+.progress-ring{margin:16px;padding:14px;background:rgba(255,255,255,.05);border-radius:var(--r2);border:1px solid rgba(255,255,255,.08)}
+.pr-label{font-size:10px;color:rgba(253,250,244,.4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.pr-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.pr-fill{height:100%;background:linear-gradient(90deg,var(--oro),#D4A55A);border-radius:2px;transition:width .6s}
+.pr-count{font-family:var(--mono);font-size:11px;color:var(--oro);margin-top:6px}
+
+/* ── TOPBAR ── */
+#topbar{height:52px;flex-shrink:0;background:var(--crema);border-bottom:1px solid var(--crema-3);display:flex;align-items:center;padding:0 24px;gap:14px;position:sticky;top:0;z-index:20}
+#hamburger{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink);padding:6px}
+#page-title{font-family:var(--serif);font-size:20px;font-weight:700;font-style:italic;color:var(--ink);flex:1}
+.region-badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase}
+
+/* ── SCROLL AREA ── */
+.scroll{padding:28px 28px 100px;max-width:880px;margin:0 auto}
+
+/* ── SECTION HEADERS ── */
+.sect{font-family:var(--serif);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ink-4);margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--crema-3)}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r3);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);transition:transform .12s,box-shadow .12s;position:relative}
+.card:hover{transform:translateY(-1px);box-shadow:var(--shadow2)}
+.card.done{opacity:.5}
+.card-accent{position:absolute;left:0;top:0;bottom:0;width:3px}
+.card-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.card-icon{width:36px;height:36px;border-radius:var(--r);display:grid;place-items:center;font-size:16px;flex-shrink:0}
+.card-main{flex:1;min-width:0}
+.card-name{font-family:var(--serif);font-size:16px;font-weight:700;line-height:1.2;color:var(--ink)}
+.card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:11px;letter-spacing:.5px;text-transform:uppercase}
+.b-confirmed{background:#D1FAE5;color:#065F46}
+.b-soft{background:#FEF3C7;color:#92400E}
+.b-idea{background:var(--crema-3);color:var(--ink-3)}
+.card-time{font-family:var(--mono);font-size:11px;color:var(--ink-4);font-weight:600}
+.card-cost{font-size:12px;font-weight:700;color:var(--terra);background:var(--terra-light);padding:2px 8px;border-radius:10px}
+.card-chevron{color:var(--ink-4);font-size:12px;flex-shrink:0;transition:transform .2s}
+.card.open .card-chevron{transform:rotate(180deg)}
+.card-detail{padding:0 16px 14px 64px;border-top:1px solid var(--crema-2)}
+.card-note{font-size:13.5px;color:var(--ink-2);line-height:1.6;margin-top:10px}
+.card-booking{font-family:var(--mono);font-size:11.5px;color:var(--oliva-dark);background:var(--oliva-light);padding:8px 10px;border-radius:var(--r);margin-top:10px;font-weight:600}
+.card-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:var(--r);border:1px solid var(--crema-3);background:var(--crema);cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-family:var(--sans)}
+.btn:hover{background:var(--crema-2);border-color:var(--crema-3)}
+.btn-done{background:#D1FAE5;color:#065F46;border-color:#A7F3D0}
+.btn-undo{background:var(--crema-2);color:var(--ink-3);border-color:var(--crema-3)}
+.btn-map{background:var(--lago);color:#fff;border-color:var(--lago)}
+.btn-app{background:var(--terra);color:#fff;border-color:var(--terra)}
+
+/* ── ITINERARY ROWS ── */
+.day-group{margin-bottom:24px}
+.day-head{display:flex;align-items:baseline;gap:10px;padding:8px 0;position:sticky;top:0;background:linear-gradient(var(--crema),var(--crema) 80%,transparent);z-index:5}
+.day-num{font-family:var(--serif);font-size:28px;font-weight:900;font-style:italic;line-height:1;color:var(--ink)}
+.day-dow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink-4)}
+.day-region{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.8px}
+.day-title{font-family:var(--serif);font-size:14px;font-style:italic;color:var(--ink-3);margin-left:4px}
+.irow{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--crema-3);border-left:3px solid;border-radius:var(--r2);padding:12px 15px;margin-bottom:8px;box-shadow:0 1px 4px rgba(26,19,16,.05)}
+.irow.done-row{opacity:.45}
+.icheck{width:26px;height:26px;border-radius:50%;border:2px solid var(--crema-3);background:var(--crema);cursor:pointer;font-size:12px;font-weight:700;color:var(--oliva);display:grid;place-items:center;flex-shrink:0;transition:all .15s}
+.icheck.ticked{background:var(--oliva);border-color:var(--oliva);color:#fff}
+.itext{flex:1;font-size:14px;line-height:1.4;color:var(--ink)}
+.itext.warn{color:#92400E;font-weight:600}
+
+/* ── HERO / DASHBOARD ── */
+.hero{background:linear-gradient(135deg,var(--lago-dark) 0%,var(--lago) 60%,#3B82C4 100%);border-radius:var(--r3);padding:32px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden}
+.hero::before{content:"ITALIA";position:absolute;right:-20px;top:-10px;font-family:var(--serif);font-size:120px;font-weight:900;font-style:italic;opacity:.06;line-height:1;pointer-events:none}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-bottom:10px}
+.hero-title{font-family:var(--serif);font-size:36px;font-weight:900;font-style:italic;line-height:1.05;margin-bottom:8px}
+.hero-sub{font-size:14px;opacity:.85}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:24px}
+.stat{background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r3);padding:16px;box-shadow:var(--shadow)}
+.stat-n{font-family:var(--serif);font-size:34px;font-weight:900;font-style:italic;line-height:1;color:var(--ink)}
+.stat-l{font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.7px;margin-top:4px;font-weight:600}
+.trip-prog{background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r3);padding:18px;box-shadow:var(--shadow);margin-bottom:24px}
+.tp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tp-label{font-size:12px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.6px}
+.tp-pct{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--oro)}
+.tp-bar{height:6px;background:var(--crema-3);border-radius:3px;overflow:hidden}
+.tp-fill{height:100%;background:linear-gradient(90deg,var(--oro),#D4A55A);border-radius:3px;transition:width .8s}
+.base-card{background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r3);padding:16px 18px;margin-bottom:10px;border-left:4px solid;box-shadow:var(--shadow)}
+.base-dates{font-family:var(--mono);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.base-name{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink)}
+.base-addr{font-size:12.5px;color:var(--ink-4);margin-top:3px}
+.base-blurb{font-size:13px;color:var(--ink-3);margin-top:6px;line-height:1.5}
+
+/* ── JOURNAL ── */
+.journal-composer{background:var(--white);border:1.5px dashed var(--crema-3);border-radius:var(--r3);padding:20px;margin-bottom:20px}
+.jc-title{font-family:var(--serif);font-size:18px;font-weight:700;font-style:italic;margin-bottom:14px;color:var(--ink)}
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.form-row>*{flex:1;min-width:140px}
+.field{width:100%}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-4);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--crema-3);border-radius:var(--r);padding:10px 12px;font-family:var(--sans);font-size:14px;background:var(--crema);color:var(--ink);transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--lago)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.voice-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--r);border:1px solid var(--crema-3);background:var(--crema);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-2);transition:all .15s}
+.voice-btn.listening{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.photo-upload{border:1.5px dashed var(--crema-3);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;background:var(--crema);transition:all .15s}
+.photo-upload:hover{border-color:var(--lago);background:var(--lago-light)}
+.photo-upload input{display:none}
+.photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.photo-preview img{width:80px;height:80px;object-fit:cover;border-radius:var(--r);border:1px solid var(--crema-3)}
+.jc-actions{display:flex;gap:10px;margin-top:14px;align-items:center}
+.btn-primary{background:var(--ink);color:var(--crema);border:none;padding:11px 22px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-primary:hover{background:var(--ink-2)}
+.j-entry{background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r3);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}
+.je-header{padding:14px 16px;border-bottom:1px solid var(--crema-2);display:flex;align-items:flex-start;gap:12px}
+.je-date-block{text-align:center;background:var(--ink);color:var(--crema);border-radius:var(--r);padding:6px 10px;flex-shrink:0;min-width:52px}
+.je-day{font-family:var(--serif);font-size:22px;font-weight:900;line-height:1}
+.je-mon{font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-top:2px}
+.je-info{flex:1}
+.je-place{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink)}
+.je-who{font-size:11px;font-weight:600;color:var(--ink-4);margin-top:2px}
+.je-del{background:none;border:none;color:var(--ink-4);cursor:pointer;padding:4px;font-size:16px;opacity:.5}
+.je-del:hover{opacity:1;color:var(--terra)}
+.je-body{padding:14px 16px}
+.je-text{font-size:14px;line-height:1.7;color:var(--ink-2);white-space:pre-wrap}
+.je-photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.je-photos img{width:90px;height:90px;object-fit:cover;border-radius:var(--r);cursor:pointer;transition:transform .15s}
+.je-photos img:hover{transform:scale(1.04)}
+
+/* ── BEFORE YOU GO ── */
+.byg-section{margin-bottom:20px}
+.byg-head{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.byg-count{font-family:var(--mono);font-size:11px;background:var(--crema-3);padding:2px 8px;border-radius:10px;color:var(--ink-4);font-weight:600}
+.byg-row{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r2);padding:12px 15px;margin-bottom:8px;box-shadow:0 1px 4px rgba(26,19,16,.05);transition:all .12s}
+.byg-row.done-row{opacity:.45}
+.byg-check{width:22px;height:22px;border-radius:var(--r);border:2px solid var(--crema-3);background:var(--crema);cursor:pointer;font-size:11px;font-weight:700;color:var(--oliva);display:grid;place-items:center;flex-shrink:0;transition:all .15s}
+.byg-check.ticked{background:var(--oliva);border-color:var(--oliva);color:#fff}
+.byg-text{flex:1;font-size:14px;color:var(--ink);line-height:1.4}
+.byg-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;text-transform:uppercase;letter-spacing:.4px}
+.add-byg{display:flex;gap:8px;margin-top:10px}
+.add-byg input{flex:1;border:1px solid var(--crema-3);border-radius:var(--r);padding:10px 12px;font-family:var(--sans);font-size:14px;background:var(--crema);color:var(--ink)}
+.add-byg input:focus{outline:none;border-color:var(--lago)}
+
+/* ── PLACES ── */
+.gmaps-hero{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#1A56DB,#1E7A4B);color:#fff;border-radius:var(--r3);padding:18px 20px;text-decoration:none;box-shadow:var(--shadow2);margin-bottom:16px;transition:transform .12s}
+.gmaps-hero:hover{transform:translateY(-1px)}
+.gh-ic{width:42px;height:42px;border-radius:var(--r);background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.gh-t{font-family:var(--serif);font-size:17px;font-weight:700}
+.gh-s{font-size:12px;opacity:.88;margin-top:2px}
+.gh-go{margin-left:auto;font-size:22px;opacity:.8}
+.place-row{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--crema-3);border-radius:var(--r2);padding:13px 15px;margin-bottom:9px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:all .12s}
+.place-row:hover{transform:translateY(-1px);box-shadow:var(--shadow2)}
+.place-row.done{opacity:.45}
+.pr-ic{width:34px;height:34px;border-radius:var(--r);display:grid;place-items:center;font-size:15px;color:#fff;flex-shrink:0}
+.pr-name{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--ink)}
+.pr-meta{display:flex;gap:6px;align-items:center;margin-top:2px}
+.pr-arr{color:var(--lago);font-size:16px;font-weight:700;margin-left:auto}
+
+/* ── MOBILE ── */
+#bottom-nav{display:none;height:var(--nav-h);background:var(--ink);position:fixed;bottom:0;left:0;right:0;z-index:50;flex-direction:row;border-top:1px solid rgba(255,255,255,.08)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:rgba(253,250,244,.5);cursor:pointer;font-family:var(--sans);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;padding:6px 2px;transition:color .15s}
+.bnav-btn.active{color:var(--oro)}
+.bnav-btn .bnic{font-size:18px}
+#scrim{display:none;position:fixed;inset:0;background:rgba(26,19,16,.5);z-index:45}
+
+/* ── LIGHTBOX ── */
+#lightbox{display:none;position:fixed;inset:0;background:rgba(26,19,16,.95);z-index:200;align-items:center;justify-content:center;padding:20px}
+#lightbox img{max-width:100%;max-height:90vh;border-radius:var(--r2)}
+
+@media(max-width:760px){
+  #sidebar{display:none;position:fixed;top:0;bottom:0;left:0;z-index:60;width:260px}
+  #sidebar.open{display:flex}
+  #scrim.show{display:block}
+  #bottom-nav{display:flex}
+  #hamburger{display:block}
+  #content{padding-bottom:var(--nav-h)}
+  .scroll{padding:20px 16px 90px}
+  .hero-title{font-size:28px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div id="ticker">
+  <span class="tick-flag">🇮🇹</span>
+  <span id="tick-countdown">27 days until departure</span>
+  <span class="tick-sep">·</span>
+  <span id="tick-date">Mon Jul 6, 2026</span>
+  <span class="tick-sep">·</span>
+  <span id="tick-region">Denver → Italia</span>
+</div>
+
+<div id="shell">
+  <div id="main">
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="brand">
+        <div class="brand-name">SniffTrails</div>
+        <div class="brand-sub">Italia · MMXXVI</div>
+      </div>
+      <nav class="nav-list" id="nav-list"></nav>
+      <div class="progress-ring" id="progress-ring"></div>
+    </aside>
+    <div id="scrim"></div>
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+      <div id="topbar">
+        <button id="hamburger">☰</button>
+        <div id="page-title">Overview</div>
+        <div class="region-badge" id="region-badge" style="display:none"></div>
+      </div>
+      <div id="view"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <nav id="bottom-nav" aria-label="Main navigation"></nav>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox"><img id="lb-img" src="" alt=""></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const TRIP={title:"Italia 2026",sub:"The Jaiswal Family",dep:new Date("2026-08-01T16:15:00"),ret:new Date("2026-08-16T13:45:00")};
+const BASES=[
+  {id:"como",name:"Lake Como",town:"Azzano (Tremezzina)",addr:"Via Regina Teodolinda 12, Azzano, Lombardia 22010",in:"2026-08-02",out:"2026-08-06",nights:4,color:"var(--lago)",conf:"HMNMDQ2YPJ",host:"Rita",prop:"Rita's Window"},
+  {id:"tuscany",name:"Val d'Orcia",town:"San Quirico d'Orcia",addr:"Strada di Ripa D'Orcia 44, San Quirico D'Orcia, Toscana 53027",in:"2026-08-06",out:"2026-08-11",nights:5,color:"var(--terra)",conf:"HMBP9X2JM8",host:"Giada",prop:"Podere La Rosa"},
+  {id:"tyrol",name:"Bressanone",town:"Dolomites",addr:"Via Fallmerayer 5, Bressanone, Trentino-Alto Adige 39042",in:"2026-08-11",out:"2026-08-15",nights:4,color:"var(--oliva)",conf:"HMJTAJN299",host:"Ivo Paul",prop:"Helles Apartment"},
+  {id:"mxp",name:"MXP Night",town:"Cardano al Campo",addr:"Via Roma 72B, Cardano al Campo, Lombardy 21010",in:"2026-08-15",out:"2026-08-16",nights:1,color:"var(--ink-3)",conf:"HMH4YEMWM3",host:"Chu Yi",prop:"Malpensa Layover Corner"},
+];
+const CATS={
+  logistics:{icon:"🚗",color:"#6B7280"},boat:{icon:"⛵",color:"#2563EB"},
+  wine:{icon:"🍷",color:"#7C3AED"},food:{icon:"🍝",color:"#C05621"},
+  village:{icon:"🏘",color:"#B45309"},monastery:{icon:"⛪",color:"#4B5563"},
+  nature:{icon:"⛰",color:"#15803D"},villa:{icon:"🏛",color:"#92400E"},
+};
+const LOCS=[
+  // FLIGHTS & CAR
+  {id:"flight-out",base:"como",cat:"logistics",status:"confirmed",name:"Flight · DEN → MXP",date:"2026-08-01",time:"16:15",cost:"$2,454",booking:"Lufthansa · 7IKFQ6",note:"DEN 4:15 PM → Munich → MXP arrives 12:15 PM Aug 2. LH481 + LH9448. Economy Light — 1 carry-on + 1 personal item each. Online check-in 23 hrs before. Seats: 60A/B/C then 12A/C/D.",app:"https://www.lufthansa.com/de/en/manage-booking",appLabel:"Lufthansa"},
+  {id:"car-pickup",base:"como",cat:"logistics",status:"confirmed",name:"Hertz BMW X1 · MXP Pickup",date:"2026-08-02",time:"1:00 PM",cost:"€922",booking:"Hertz · L53827747F0",note:"✅ Pickup 1:00 PM — lines up with 12:15 PM landing. MXP Terminal 1. Bring license + credit card + passport. Unlimited km. €16 cross-border fee for Switzerland/Austria. Member 53813580. Flight LH9448 added to reservation.",app:"https://www.hertz.com/rentacar/reservation/",appLabel:"Hertz"},
+  {id:"flight-home",base:"mxp",cat:"logistics",status:"confirmed",name:"Flight · MXP → DEN",date:"2026-08-16",time:"08:35",cost:"",booking:"Lufthansa · 7IKFQ6",note:"MXP 8:35 AM → Munich → DEN arrives 1:45 PM. LH9513 then LH480. Car return 5:00 AM before flight.",app:"https://www.lufthansa.com/de/en/manage-booking",appLabel:"Lufthansa"},
+  {id:"car-return",base:"mxp",cat:"logistics",status:"confirmed",name:"Hertz Return · MXP",date:"2026-08-16",time:"5:00 AM",booking:"Hertz · L53827747F0",note:"⚠️ Return 5 AM — before desk opens at 7 AM. Confirm before-hours key drop with Hertz. Then walk/taxi to Terminal 1 for 8:35 AM flight.",app:"https://www.hertz.com/rentacar/reservation/",appLabel:"Hertz"},
+  // STAYS
+  {id:"stay-como",base:"como",cat:"logistics",status:"confirmed",name:"Rita's Window · Azzano",date:"2026-08-02",time:"Check-in 4:00 PM (lockbox)",cost:"$985.75",booking:"Airbnb · HMNMDQ2YPJ · Host: Rita",note:"Via Regina Teodolinda 12, Azzano, Lombardia 22010. Lakefront apartment, lake view. Lockbox instructions 48 hrs before. Checkout Aug 6 10 AM. ⚠️ Free cancel passed Jul 28.",app:"https://www.airbnb.com/trips/v1",appLabel:"Airbnb"},
+  {id:"stay-tuscany",base:"tuscany",cat:"logistics",status:"confirmed",name:"Podere La Rosa · San Quirico",date:"2026-08-06",time:"Check-in 3:00 PM (Giada greets you)",cost:"$995.92",booking:"Airbnb · HMBP9X2JM8 · Host: Giada",note:"Strada di Ripa D'Orcia 44, San Quirico D'Orcia, Toscana 53027. Host greets in person. Checkout Aug 11 11 AM. ⚠️ Free cancel passed Aug 1.",app:"https://www.airbnb.com/trips/v1",appLabel:"Airbnb"},
+  {id:"stay-tyrol",base:"tyrol",cat:"logistics",status:"confirmed",name:"Helles Apartment · Bressanone",date:"2026-08-11",time:"Check-in 3:00 PM (Ivo Paul greets you)",cost:"$1,086.54",booking:"Airbnb · HMJTAJN299 · Host: Ivo Paul",note:"Via Fallmerayer 5, Bressanone, Trentino-Alto Adige 39042. Bright apartment in old town center. Checkout Aug 15 10 AM. ⚠️ Free cancel until Aug 10 3 PM. Quiet hours 10 PM–8 AM. Directions: A22 → exit Klausen/Gröden → SS12 ~11 km.",app:"https://www.airbnb.com/trips/v1",appLabel:"Airbnb"},
+  {id:"stay-mxp",base:"mxp",cat:"logistics",status:"confirmed",name:"Malpensa Layover Corner · Cardano",date:"2026-08-15",time:"Check-in 3:00 PM (lockbox)",cost:"$113.14",booking:"Airbnb · HMH4YEMWM3 · Host: Chu Yi",note:"Via Roma 72B, Cardano al Campo, Lombardy 21010. Lockbox — contact host for code. Checkout Aug 16 10 AM. ⚠️ Free cancel until Aug 14 3 PM — after that non-refundable.",app:"https://www.airbnb.com/trips/v1",appLabel:"Airbnb"},
+  // COMO
+  {id:"ferry-day",base:"como",cat:"logistics",status:"confirmed",name:"Ferry Day Pass · Central Lake",date:"2026-08-03",cost:"€43.80",booking:"PNRs MLBDQ / QYNNJ / YDQ4A",note:"✅ Booked. Unlimited ordinary-boat rides all day — Bellagio, Varenna, Menaggio, Tremezzo, Lenno. Not a seat reservation — board before 9 AM from Lenno/Tremezzo. Baby Ariaan free. Tap NaviTap with bank card for adults.",app:"https://www.navigazionelaghi.it/en/",appLabel:"Navigazione Laghi"},
+  {id:"villa-balbianello",base:"como",cat:"villa",status:"confirmed",name:"Villa del Balbianello",lat:45.9696,lng:9.2061,date:"2026-08-04",time:"15:15",cost:"$66 family",booking:"Ref SPFA27NAAN9AGBNL",note:"Guided villa + park tour. Water taxi from Lido di Lenno ~€7 return. Closed Mon & Wed."},
+  {id:"cadenazzi",base:"como",cat:"boat",status:"soft",name:"Cadenazzi Wooden Boat",lat:45.9767,lng:9.2012,date:"2026-08-04",cost:"~€200–250 (2–3 hrs)",note:"Classic wooden boat, 4 generations. WhatsApp +39 339 161 3256. Book morning slot before 3:15 PM villa.",link:"https://www.cadenazzi.it"},
+  {id:"fabbrica-gelato",base:"como",cat:"food",status:"soft",name:"La Fabbrica del Gelato · Lenno",lat:45.9745,lng:9.1980,date:"2026-08-04",cost:"~€4.50 a cone",note:"Main piazza of Lenno, 5 min from Azzano. Hazelnut & pistachio standouts. Pair with Villa Balbianello afternoon."},
+  {id:"bellagio",base:"como",cat:"village",status:"idea",name:"Bellagio",lat:45.9858,lng:9.2614,note:"The pearl of Lake Como. Best early morning before crowds."},
+  {id:"varenna",base:"como",cat:"village",status:"idea",name:"Varenna",lat:46.0106,lng:9.2847,note:"Villa Monastero gardens, stunning views. Ferry day Aug 3."},
+  // TUSCANY
+  {id:"cantina-chiacchiera",base:"tuscany",cat:"wine",status:"confirmed",name:"Cantina Chiacchiera · Montepulciano",lat:43.0937,lng:11.7811,date:"2026-08-08",time:"10:00–11:30",booking:"Airbnb reservation — confirmed",note:"Vino Nobile tasting + vineyard tour. Drive 9 AM, arrive 9:45. ~25 min from base.",app:"https://www.airbnb.com/trips/v1",appLabel:"Airbnb"},
+  {id:"podere-spedalone",base:"tuscany",cat:"food",status:"confirmed",name:"Podere Spedalone · Farm Dinner",lat:43.0792,lng:11.6694,date:"2026-08-07",time:"Evening",cost:"€115 total",booking:"WhatsApp confirmed · Diane Jaiswal",note:"Communal farm dinner outdoors. €45×2 adults + €25 child + baby free. ⚠️ WhatsApp Aug 6 to confirm start time. Contact Juan/Johanna +39 345 641 4221.",app:"https://wa.me/393456414221",appLabel:"WhatsApp"},
+  {id:"monticchiello",base:"tuscany",cat:"village",status:"soft",name:"Monticchiello",lat:43.0723,lng:11.7156,date:"2026-08-07",note:"Your Italian Pérouges. Fortified medieval village, almost zero tourists."},
+  {id:"pienza",base:"tuscany",cat:"village",status:"soft",name:"Pienza",lat:43.0786,lng:11.6786,date:"2026-08-07",note:"The ideal Renaissance city. UNESCO. Best Pecorino in Tuscany."},
+  {id:"cappella-vitaleta",base:"tuscany",cat:"nature",status:"soft",name:"Cappella di Vitaleta",lat:43.0680,lng:11.6500,note:"The most photographed image in Tuscany. Golden hour or sunrise."},
+  {id:"montalcino",base:"tuscany",cat:"village",status:"soft",name:"Montalcino",lat:43.0578,lng:11.4894,date:"2026-08-08",note:"Medieval fortress town, home of Brunello. Fortezza enoteca — walk in, no booking."},
+  {id:"santantimo",base:"tuscany",cat:"monastery",status:"soft",name:"Sant'Antimo Abbey",lat:43.0118,lng:11.5128,date:"2026-08-08",cost:"Free",note:"Romanesque abbey, Gregorian chants. Haunting, almost no tourists."},
+  {id:"monteoliveto",base:"tuscany",cat:"monastery",status:"idea",name:"Monte Oliveto Maggiore",lat:43.1722,lng:11.5481,cost:"Free",note:"700-yr Benedictine monastery. FREE wine tasting in medieval cellar with monk guide Luca. On road to Siena. Open 9:15–12, 3:15–6.",link:"https://www.monteolivetomaggiore.it"},
+  {id:"capitoni",base:"tuscany",cat:"wine",status:"idea",name:"Capitoni Winery · Pienza",lat:43.0786,lng:11.6786,cost:"Free tasting",note:"Marco Capitoni, family since 1968. FREE tour and tasting in the Cantina. 10 min from Pienza, probably the only visitors. Perfect Aug 7 add-on."},
+  {id:"siena",base:"tuscany",cat:"village",status:"soft",name:"Siena",lat:43.3188,lng:11.3308,date:"2026-08-09",note:"Piazza del Campo, Torre del Mangia. Leave early."},
+  {id:"san-gimignano",base:"tuscany",cat:"village",status:"soft",name:"San Gimignano",lat:43.4677,lng:11.0431,date:"2026-08-09",note:"Medieval towers. Gelateria Dondoli for world-famous gelato."},
+  {id:"civita",base:"tuscany",cat:"village",status:"soft",name:"Civita di Bagnoregio",lat:42.6275,lng:12.1136,date:"2026-08-10",cost:"€5pp",note:"Your Italian Hallstatt. Medieval village on a crumbling cliff. Cross early morning."},
+  {id:"orvieto",base:"tuscany",cat:"village",status:"soft",name:"Orvieto",lat:42.7185,lng:12.1107,date:"2026-08-10",note:"Cathedral city on volcanic rock. The Duomo facade is extraordinary."},
+  // DOLOMITES
+  {id:"lago-braies",base:"tyrol",cat:"nature",status:"confirmed",name:"Lago di Braies · P4 Parking",lat:46.6947,lng:12.0857,date:"2026-08-14",cost:"€40 (€24 parking + €16 voucher)",booking:"Res ID 1268965920 · braiesparking.com",note:"✅ P4 Parking confirmed Aug 14. Scan QR at barrier. ⚠️ Add rental plate on braiesparking.com → Manage Booking before Aug 14. Cancel deadline midnight Aug 10. Meal voucher (€16): Chalet Grill 8AM–6PM, Emmas Bistro 9:30AM–5:30PM, Restaurant Hotel 12–1:30PM. Present QR BEFORE payment. Not valid at boathouse.",link:"https://www.braiesparking.com"},
+  {id:"novacella",base:"tyrol",cat:"wine",status:"soft",name:"Abbazia di Novacella · Monk Winery",lat:46.7320,lng:11.6510,date:"2026-08-14",time:"16:00 (Friday session)",cost:"~€10pp",note:"Making wine since 1142. Augustinian monastery. Italy's best whites — Kerner, Sylvaner, Gewürztraminer. 3 min from Bressanone. Book kloster-neustift.it → Abbey Experience. Friday Aug 14 16:00 slot.",link:"https://www.kloster-neustift.it"},
+  {id:"seceda",base:"tyrol",cat:"nature",status:"soft",name:"Seceda / Ortisei",lat:46.6066,lng:11.7544,date:"2026-08-12",cost:"~€23 cable car",note:"The most iconic Dolomites ridgeline. Cable car from Ortisei (35 min drive). Go early — queues grow fast."},
+  {id:"val-funes",base:"tyrol",cat:"nature",status:"soft",name:"Val di Funes · Santa Maddalena",lat:46.6760,lng:11.7610,date:"2026-08-13",note:"Storybook valley — Santa Maddalena + San Giovanni churches against Odle peaks. Gentle 1-hr walk. Park Bergerplatz €4. ~45 min from base."},
+  {id:"chiusa",base:"tyrol",cat:"village",status:"soft",name:"Chiusa (Klausen)",lat:46.6410,lng:11.5670,date:"2026-08-11",note:"One of Italy's most beautiful villages. Medieval painters' town on A22. Gassl Bräu brewery (trout stream under the floor). Sabiona monastery on the cliff above. Stop on arrival day."},
+  {id:"bolzano-otzi",base:"tyrol",cat:"village",status:"soft",name:"Bolzano + Ötzi Museum",lat:46.4983,lng:11.3548,date:"2026-08-13",cost:"~€16 adults",note:"5,300-yr-old Iceman. Book iceman.it. Medieval arcaded old town. Narrow-gauge railway. 40 min from Bressanone.",link:"https://www.iceman.it"},
+  // AUG 15 DRIVE
+  {id:"trento-stop",base:"tyrol",cat:"village",status:"soft",name:"Trento",lat:46.0748,lng:11.1217,date:"2026-08-15",cost:"Free",note:"Aug 15 stop on A22. Castello del Buonconsiglio — Renaissance castle, frescoed rooms, medieval old town. Allow 1.5–2 hrs. Leave ~1–2 PM.",link:"https://www.buonconsiglio.it/en"},
+  {id:"riva-garda",base:"tyrol",cat:"village",status:"soft",name:"Riva del Garda",lat:45.8856,lng:10.8414,date:"2026-08-15",cost:"Free",note:"Aug 15 stop, 30 min from Trento. Dramatic northern Lake Garda cliffs, waterfront castle, flat promenade. Gelato stop. Allow 1.5–2 hrs then drive to MXP."},
+];
+
+const ITINERARY=[
+  {date:"2026-08-02",base:"como",title:"Arrival",items:["Land MXP 12:15 PM · pick up Hertz BMW X1 (1 PM)","Drive to Azzano · check in 4 PM"]},
+  {date:"2026-08-03",base:"como",title:"Ferry Day",items:["Bellagio · Varenna · Menaggio by ferry","Board before 9 AM from Lenno/Tremezzo · day pass pre-bought"]},
+  {date:"2026-08-04",base:"como",title:"Boat + Villa",items:["Morning: Cadenazzi wooden boat (book +39 339 161 3256)","3:15 PM Villa del Balbianello — booked","La Fabbrica del Gelato in Lenno after"]},
+  {date:"2026-08-05",base:"como",title:"Open Day",items:["Flexible — Villa Carlotta, Lugano, or slow lake day"]},
+  {date:"2026-08-06",base:"tuscany",title:"Drive to Tuscany",items:["Parma food stop en route","Florence — All'Antico Vinaio","Check in San Quirico 3 PM (Giada greets you)","⚠️ WhatsApp Podere Spedalone to confirm Aug 7 dinner · +39 345 641 4221"]},
+  {date:"2026-08-07",base:"tuscany",title:"Villages + Farm Dinner",items:["Monticchiello · Pienza · Cappella Vitaleta","Optional: Capitoni winery free tasting near Pienza","Evening: Podere Spedalone farm dinner — booked"]},
+  {date:"2026-08-08",base:"tuscany",title:"Wine Day",items:["10 AM Cantina Chiacchiera — booked","Montepulciano town + lunch","Montalcino · Sant'Antimo Abbey"]},
+  {date:"2026-08-09",base:"tuscany",title:"Siena + San Gimignano",items:["Full day — leave early","Monte Oliveto Maggiore on the way (free monk wine tasting)"]},
+  {date:"2026-08-10",base:"tuscany",title:"Civita + Orvieto",items:["Civita di Bagnoregio early (€5pp)","Orvieto afternoon"]},
+  {date:"2026-08-11",base:"tyrol",title:"Drive to Dolomites",items:["Florence — I'Pizzacchiere","Ariola Winery Lambrusco stop","Stop: Chiusa medieval town + Gassl Bräu brewery","Check in Bressanone 3 PM (Ivo Paul greets you)"]},
+  {date:"2026-08-12",base:"tyrol",title:"Seceda",items:["Ortisei + Seceda cable car — go early","Lunch at a rifugio"]},
+  {date:"2026-08-13",base:"tyrol",title:"Val di Funes + Bolzano",items:["Morning: Val di Funes · Santa Maddalena walk · park Bergerplatz €4","Afternoon: Bolzano + Ötzi Museum (book iceman.it)","Old town + narrow-gauge railway"]},
+  {date:"2026-08-14",base:"tyrol",title:"Lago di Braies + Novacella",items:["Lago di Braies — P4 parking pre-booked (Res 1268965920)","Flat lake loop · use €16 meal voucher (show QR before paying)","16:00 Novacella Abbey wine tasting (book kloster-neustift.it)"]},
+  {date:"2026-08-15",base:"tyrol",title:"Final Drive → MXP",items:["Leave Bressanone ~9–10 AM","Stop 1: Trento — Castello del Buonconsiglio + lunch","Stop 2: Riva del Garda — lake + gelato","Drive to MXP hotel · check in 3 PM"]},
+  {date:"2026-08-16",base:"mxp",title:"Fly Home",items:["⚠️ Return Hertz 5 AM — confirm before-hours key drop at MXP T1","MXP → Munich → Denver · departs 8:35 AM · arrives 1:45 PM"]},
+];
+
+const PRE_TRIP_CHECKS=[
+  {id:"p1",cat:"Packing",text:"Add AirTag/GPS tracker to checked luggage"},
+  {id:"p2",cat:"Documents",text:"Get medical certificate for La Nobile 5k race (from GP in Denver)"},
+  {id:"p3",cat:"Booking",text:"Book Novacella Abbey tasting (Aug 14 16:00) at kloster-neustift.it"},
+  {id:"p4",cat:"Booking",text:"Book Ötzi Museum at iceman.it (Aug 13)"},
+  {id:"p5",cat:"Booking",text:"Decide & book Cadenazzi wooden boat for Aug 4 AM · +39 339 161 3256"},
+  {id:"p6",cat:"Documents",text:"Check all 4 passports are valid for travel"},
+  {id:"p7",cat:"Packing",text:"Get infant carrier (for Braies lake loop + Seceda)"},
+  {id:"p8",cat:"Logistics",text:"Download Google Maps offline: Como, Tuscany, Dolomites"},
+  {id:"p9",cat:"Logistics",text:"Get international driving permit (IDP) from AAA if needed"},
+  {id:"p10",cat:"Health",text:"Pack infant essentials: formula, diapers for 2 weeks, sunscreen"},
+  {id:"p11",cat:"Health",text:"Pack any prescription medications — enough for full trip"},
+  {id:"p12",cat:"Logistics",text:"Notify bank/credit cards of Italy travel dates"},
+  {id:"p13",cat:"Logistics",text:"Add Hertz rental plate to Braies parking once you pick up car Aug 2"},
+  {id:"p14",cat:"Packing",text:"Pack warm layers for Dolomites — cold at altitude even in August"},
+  {id:"p15",cat:"Logistics",text:"Confirm before-hours key drop with Hertz MXP T1 for 5 AM Aug 16"},
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const LS="snifftrails_2026";
+function load(){try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}}
+function save(){localStorage.setItem(LS,JSON.stringify(state))}
+let state=Object.assign({done:{},open:{},view:"overview",journal:[],customPins:[]},load());
+if(state.view==="map")state.view="overview";
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function ymd(d){return d.toISOString().slice(0,10)}
+function now(){return new Date()}
+function beforeTrip(){return now()<TRIP.dep}
+function inTrip(){const n=now();return n>=new Date("2026-08-02")&&n<=new Date("2026-08-16T23:59:59")}
+function fmtDate(d){return `${DOW[d.getDay()]} ${MON[d.getMonth()]} ${d.getDate()}`}
+function allLocs(){return LOCS.concat(state.customPins)}
+function isDone(id){return !!state.done[id]}
+function toggleDone(id){state.done[id]=!state.done[id];save();render()}
+function toggleOpen(id){state.open[id]=!state.open[id];save();render()}
+function baseColor(b){return b==="como"?"var(--lago)":b==="tuscany"?"var(--terra)":b==="tyrol"?"var(--oliva)":"var(--ink-3)"}
+function catOf(c){return CATS[c]||CATS.logistics}
+
+function badge(s){
+  if(s==="confirmed")return `<span class="badge b-confirmed">Booked</span>`;
+  if(s==="soft")return `<span class="badge b-soft">Considering</span>`;
+  return `<span class="badge b-idea">Idea</span>`;
+}
+
+function locCard(l){
+  const c=catOf(l.cat);const done=isDone(l.id);const open=!!state.open[l.id];
+  const bc=baseColor(l.base);
+  const hasDetail=l.note||l.booking||l.link||l.lat||l.app;
+  return `<div class="card ${done?'done':''} ${open?'open':''}" id="card-${l.id}">
+    <div class="card-accent" style="background:${bc}"></div>
+    <div class="card-head" onclick="toggleOpen('${l.id}')">
+      <div class="card-icon" style="background:${c.color}">${c.icon}</div>
+      <div class="card-main">
+        <div class="card-name">${l.name}</div>
+        <div class="card-meta">
+          ${badge(l.status)}
+          ${l.time?`<span class="card-time">🕑 ${l.time}</span>`:''}
+          ${l.cost?`<span class="card-cost">${l.cost}</span>`:''}
+        </div>
+      </div>
+      ${hasDetail?`<span class="card-chevron">${open?'▲':'▼'}</span>`:''}
+    </div>
+    ${open?`<div class="card-detail">
+      ${l.note?`<div class="card-note">${l.note}</div>`:''}
+      ${l.booking?`<div class="card-booking">✓ ${l.booking}</div>`:''}
+      <div class="card-actions">
+        <button class="${done?'btn btn-undo':'btn btn-done'}" onclick="event.stopPropagation();toggleDone('${l.id}')">${done?'↩ Undo':'✓ Done'}</button>
+        ${l.lat?`<a class="btn btn-map" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.name+' Italy')}">⌖ Maps</a>`:''}
+        ${l.app?`<a class="btn btn-app" target="_blank" href="${l.app}">↗ ${l.appLabel}</a>`:''}
+        ${l.link?`<a class="btn" target="_blank" href="${l.link}">↗ Site</a>`:''}
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// TICKER
+// ═══════════════════════════════════════════════
+function updateTicker(){
+  const n=now();const dep=TRIP.dep;const ret=TRIP.ret;
+  const diff=dep-n;const el=document.getElementById('tick-countdown');
+  const dr=document.getElementById('tick-region');
+  const dd=document.getElementById('tick-date');
+  if(el){
+    if(n<dep){
+      const days=Math.floor(diff/864e5);const hrs=Math.floor((diff%864e5)/36e5);
+      const mins=Math.floor((diff%36e5)/6e4);const secs=Math.floor((diff%6e4)/1e3);
+      el.textContent=`${days}d ${hrs}h ${mins}m ${secs}s until departure`;
+      dr.textContent="Denver → Italia";
+    } else if(n<=ret){
+      const left=Math.ceil((ret-n)/864e5);
+      el.textContent=`${left} day${left===1?'':'s'} remaining in Italy`;
+      dr.textContent="🇮🇹 In Italia";
+    } else {
+      el.textContent="Bentornati a casa ✈";dr.textContent="Trip complete";
+    }
+    dd.textContent=fmtDate(n);
+  }
+}
+setInterval(updateTicker,1000);updateTicker();
+
+// ═══════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════
+const VIEWS=[
+  {id:"overview",icon:"◈",label:"Overview"},
+  {id:"before",icon:"☑",label:"Before You Go"},
+  {id:"itinerary",icon:"❘❘",label:"Itinerary"},
+  {id:"places",icon:"⌖",label:"Places"},
+  {id:"bookings",icon:"✓",label:"Bookings"},
+  {id:"journal",icon:"✎",label:"Journal"},
+];
+function renderNav(){
+  document.getElementById('nav-list').innerHTML=VIEWS.map(v=>
+    `<button class="nav-btn ${state.view===v.id?'active':''}" onclick="goto('${v.id}')">
+      <span class="nav-icon">${v.icon}</span>${v.label}</button>`
+  ).join('');
+  // Bottom nav
+  document.getElementById('bottom-nav').innerHTML=VIEWS.slice(0,5).map(v=>
+    `<button class="bnav-btn ${state.view===v.id?'active':''}" onclick="goto('${v.id}')">
+      <span class="bnic">${v.icon}</span>${v.label}</button>`
+  ).join('');
+  // Progress
+  const done=Object.values(state.done).filter(Boolean).length;
+  const total=PRE_TRIP_CHECKS.length;
+  const pct=Math.round(done/total*100)||0;
+  document.getElementById('progress-ring').innerHTML=
+    `<div class="pr-label">Pre-trip checklist</div>
+     <div class="pr-bar"><div class="pr-fill" style="width:${pct}%"></div></div>
+     <div class="pr-count">${done}/${total} done</div>`;
+}
+function goto(v){state.view=v;save();render();closeSidebar()}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('scrim').classList.remove('show')}
+
+// ═══════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════
+function render(){
+  renderNav();
+  const titles={overview:"Overview",before:"Before You Go",itinerary:"Itinerary",places:"Places",bookings:"Bookings",journal:"Journal"};
+  document.getElementById('page-title').textContent=titles[state.view]||"SniffTrails";
+  const rb=document.getElementById('region-badge');rb.style.display='none';
+  views[state.view]&&views[state.view]();
+}
+
+const views={
+overview(){
+  const n=now();const daysToGo=Math.max(0,Math.ceil((TRIP.dep-n)/864e5));
+  const confirmed=allLocs().filter(l=>l.status==='confirmed').length;
+  const done=Object.keys(state.done).filter(k=>state.done[k]).length;
+  let h=`<div class="scroll">
+  <div class="hero">
+    <div class="hero-eyebrow">The Jaiswal Family · Summer 2026</div>
+    <div class="hero-title">${beforeTrip()?`${daysToGo} Days<br>to Italia`:inTrip()?'Buongiorno<br>Italia':'Bentornati!'}</div>
+    <div class="hero-sub">3 regions · 14 nights · Aug 2–16 · Lake Como, Tuscany, Dolomites</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-n">${confirmed}</div><div class="stat-l">Bookings locked</div></div>
+    <div class="stat"><div class="stat-n">4</div><div class="stat-l">Places to stay</div></div>
+    <div class="stat"><div class="stat-n">14</div><div class="stat-l">Nights in Italy</div></div>
+    <div class="stat"><div class="stat-n">${state.journal.length}</div><div class="stat-l">Journal entries</div></div>
+  </div>
+  <div class="trip-prog">
+    <div class="tp-head"><span class="tp-label">Pre-trip checklist</span><span class="tp-pct">${Math.round(Object.values(state.done).filter(Boolean).length/PRE_TRIP_CHECKS.length*100)||0}%</span></div>
+    <div class="tp-bar"><div class="tp-fill" style="width:${Math.round(Object.values(state.done).filter(Boolean).length/PRE_TRIP_CHECKS.length*100)||0}%"></div></div>
+  </div>
+  <div class="sect">Your Three Bases</div>`;
+  BASES.forEach(b=>{
+    h+=`<div class="base-card" style="border-left-color:${b.color}">
+      <div class="base-dates" style="color:${b.color}">${b.nights} nights · ${new Date(b.in+"T12:00").toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${new Date(b.out+"T12:00").toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+      <div class="base-name">${b.prop}</div>
+      <div class="base-addr">${b.addr}</div>
+      <div class="base-blurb">Host: ${b.host} · Conf: <span style="font-family:var(--mono);font-size:12px">${b.conf}</span></div>
+    </div>`;
+  });
+  h+='</div>';document.getElementById('view').innerHTML=h;
+},
+
+before(){
+  const cats=[...new Set(PRE_TRIP_CHECKS.map(c=>c.cat))];
+  const catColors={Packing:["#FEF3C7","#92400E"],Documents:["#DBEAFE","#1E40AF"],Booking:["#D1FAE5","#065F46"],Logistics:["#F3E8FF","#6D28D9"],Health:["#FEE2E2","#991B1B"]};
+  let h=`<div class="scroll">
+  <p style="font-size:14px;color:var(--ink-3);margin-bottom:20px">Everything to sort before you leave Denver. Check them off as you go.</p>`;
+  cats.forEach(cat=>{
+    const items=PRE_TRIP_CHECKS.filter(c=>c.cat===cat);
+    const doneCount=items.filter(c=>isDone(c.id)).length;
+    const [bg,fg]=catColors[cat]||["var(--crema-3)","var(--ink-3)"];
+    h+=`<div class="byg-section">
+      <div class="byg-head">${cat}<span class="byg-count">${doneCount}/${items.length}</span></div>`;
+    items.forEach(c=>{
+      const done=isDone(c.id);
+      h+=`<div class="byg-row ${done?'done-row':''}">
+        <button class="byg-check ${done?'ticked':''}" onclick="toggleDone('${c.id}')">${done?'✓':''}</button>
+        <div class="byg-text" style="${done?'text-decoration:line-through;opacity:.6':''}">${c.text}</div>
+        <span class="byg-tag" style="background:${bg};color:${fg}">${cat}</span>
+      </div>`;
+    });
+    h+=`<div class="add-byg"><input type="text" placeholder="Add to ${cat}…" id="add-${cat}" onkeydown="if(event.key==='Enter')addCheck('${cat}',this)"><button class="btn" onclick="addCheck('${cat}',document.getElementById('add-${cat}'))">+ Add</button></div>`;
+    h+='</div>';
+  });
+  h+='</div>';document.getElementById('view').innerHTML=h;
+},
+
+itinerary(){
+  const n=now();const today=ymd(n);
+  let h='<div class="scroll">';
+  ITINERARY.forEach(d=>{
+    const dt=new Date(d.date+"T12:00:00");const b=d.base;
+    const isToday=inTrip()&&d.date===today;
+    const past=inTrip()&&dt<n&&!isToday;
+    const bc=baseColor(b);
+    h+=`<div class="day-group" style="${past?'opacity:.5':''}">
+      <div class="day-head">
+        <span class="day-num">${dt.getDate()}</span>
+        <span class="day-dow">${DOW[dt.getDay()]}</span>
+        <span class="day-title">${d.title}</span>
+        <span class="day-region" style="background:${bc}22;color:${bc}">${BASES.find(x=>x.id===b)?.name||''}${isToday?' · TODAY':''}</span>
+      </div>`;
+    d.items.forEach((it,i)=>{
+      const key=`${d.date}-${i}`;const done=isDone(key);const warn=it.startsWith('⚠️');
+      h+=`<div class="irow ${done?'done-row':''}" style="border-left-color:${bc}">
+        <button class="icheck ${done?'ticked':''}" onclick="toggleDone('${key}')">${done?'✓':''}</button>
+        <div class="itext ${warn?'warn':''}" style="${done?'text-decoration:line-through':''}"> ${it}</div>
+      </div>`;
+    });
+    // Only confirmed bookings on this date
+    allLocs().filter(l=>l.date===d.date&&l.status==='confirmed').forEach(l=>h+=locCard(l));
+    h+='</div>';
+  });
+  h+='</div>';document.getElementById('view').innerHTML=h;
+},
+
+places(){
+  let h=`<div class="scroll">
+  <a class="gmaps-hero" target="_blank" href="https://maps.app.goo.gl/TdW4owLcFZtYnXPn9">
+    <div class="gh-ic">⌖</div>
+    <div><div class="gh-t">Open the full Google Maps list</div>
+    <div class="gh-s">Europe Aug 2026 Trip · all 63 pins, live</div></div>
+    <div class="gh-go">↗</div>
+  </a>
+  <p style="font-size:12.5px;color:var(--ink-4);margin-bottom:14px">Tap any place to open in Google Maps with directions and Street View.</p>`;
+  ["como","tuscany","tyrol"].forEach(b=>{
+    const base=BASES.find(x=>x.id===b);
+    const locs=allLocs().filter(l=>l.base===b&&l.lat);
+    if(!locs.length)return;
+    h+=`<div class="sect" style="color:${baseColor(b)}">${base.name}</div>`;
+    locs.forEach(l=>{
+      const c=catOf(l.cat);const done=isDone(l.id);
+      h+=`<a class="place-row ${done?'done':''}" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.name+' '+base.town+' Italy')}">
+        <div class="pr-ic" style="background:${c.color}">${c.icon}</div>
+        <div class="pr-main">
+          <div class="pr-name">${l.name}</div>
+          <div class="pr-meta">${badge(l.status)}${l.time?`<span class="card-time">🕑 ${l.time}</span>`:''}</div>
+        </div>
+        <div class="pr-arr">↗</div>
+      </a>`;
+    });
+  });
+  h+='</div>';document.getElementById('view').innerHTML=h;
+},
+
+bookings(){
+  const confirmed=allLocs().filter(l=>l.status==='confirmed');
+  let h='<div class="scroll">';
+  ["como","tuscany","tyrol","mxp"].forEach(b=>{
+    const base=BASES.find(x=>x.id===b);
+    const g=confirmed.filter(l=>l.base===b);
+    if(!g.length)return;
+    h+=`<div class="sect" style="color:${baseColor(b)}">${base?.name||b}</div>`;
+    g.sort((a,b)=>(a.date||'z').localeCompare(b.date||'z')).forEach(l=>h+=locCard(l));
+  });
+  h+='</div>';document.getElementById('view').innerHTML=h;
+},
+
+journal(){
+  let h=`<div class="scroll">
+  <div class="journal-composer">
+    <div class="jc-title">✎ New entry</div>
+    <div class="form-row">
+      <div class="field"><label>Place / Location</label><input type="text" id="j-place" placeholder="e.g. Bellagio, Villa Balbianello"></div>
+      <div class="field"><label>Date</label><input type="date" id="j-date" value="${ymd(now())}" min="2026-08-01" max="2026-08-31"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Who's writing</label>
+        <select id="j-who"><option>Saurabh</option><option>Diane</option><option>Together</option></select></div>
+      <div class="field"><label>Tag</label>
+        <select id="j-tag"><option>Memory</option><option>Food</option><option>Wine</option><option>Adventure</option><option>Kids</option><option>Scenery</option></select></div>
+    </div>
+    <div class="field" style="margin-bottom:10px"><label>Your entry</label>
+      <textarea id="j-text" placeholder="What happened? What did it feel, taste, smell like? Write freely…"></textarea></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎤 Dictate</button>
+      <label class="photo-upload" style="flex:1;cursor:pointer">
+        📷 Add photos
+        <input type="file" id="j-photos" accept="image/*" multiple onchange="previewPhotos(this)">
+      </label>
+    </div>
+    <div class="photo-preview" id="j-preview"></div>
+    <div class="jc-actions">
+      <button class="btn-primary" onclick="saveEntry()">Save entry →</button>
+    </div>
+  </div>`;
+
+  if(!state.journal.length){
+    h+=`<div style="text-align:center;padding:40px 20px;color:var(--ink-4)">
+      <div style="font-size:40px;margin-bottom:10px">✎</div>
+      <div style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink-3)">Your travel diary starts here</div>
+      <p style="font-size:13px;margin-top:8px">Add entries before, during, or after the trip. They're saved on this device.</p></div>`;
+  } else {
+    const sorted=[...state.journal].sort((a,b)=>b.ts-a.ts);
+    sorted.forEach(e=>{
+      const dt=new Date(e.date+"T12:00:00");
+      const tagColor={Memory:"#EDE9FE",Food:"#FEF3C7",Wine:"#FCE7F3",Adventure:"#D1FAE5",Kids:"#DBEAFE",Scenery:"#E0F2FE"}[e.tag]||"var(--crema-3)";
+      h+=`<div class="j-entry">
+        <div class="je-header">
+          <div class="je-date-block"><div class="je-day">${dt.getDate()}</div><div class="je-mon">${MON[dt.getMonth()]}</div></div>
+          <div class="je-info">
+            <div class="je-place">${e.place||'Italy'}</div>
+            <div class="je-who">${e.who} · <span style="background:${tagColor};padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700">${e.tag||'Memory'}</span></div>
+          </div>
+          <button class="je-del" onclick="delEntry(${e.ts})">✕</button>
+        </div>
+        <div class="je-body">
+          <div class="je-text">${e.text.replace(/</g,'&lt;')}</div>
+          ${e.photos?.length?`<div class="je-photos">${e.photos.map(p=>`<img src="${p}" onclick="lightbox('${p}')">`).join('')}</div>`:''}
+        </div>
+      </div>`;
+    });
+  }
+  h+='</div>';document.getElementById('view').innerHTML=h;
+  // Wire voice
+  wireVoice();
+},
+};
+
+// ═══════════════════════════════════════════════
+// JOURNAL ACTIONS
+// ═══════════════════════════════════════════════
+let pendingPhotos=[];
+function previewPhotos(inp){
+  pendingPhotos=[];const prev=document.getElementById('j-preview');prev.innerHTML='';
+  [...inp.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{pendingPhotos.push(ev.target.result);
+      const img=document.createElement('img');img.src=ev.target.result;prev.appendChild(img)};
+    r.readAsDataURL(f);
+  });
+}
+function saveEntry(){
+  const text=document.getElementById('j-text')?.value.trim();
+  const place=document.getElementById('j-place')?.value.trim();
+  if(!text&&!pendingPhotos.length)return;
+  state.journal.push({ts:Date.now(),date:document.getElementById('j-date').value,
+    who:document.getElementById('j-who').value,tag:document.getElementById('j-tag').value,
+    place:place||'Italy',text:text||'',photos:[...pendingPhotos]});
+  save();pendingPhotos=[];render();
+}
+function delEntry(ts){if(confirm('Delete this entry?')){state.journal=state.journal.filter(e=>e.ts!==ts);save();render()}}
+function lightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').style.display='flex'}
+document.getElementById('lightbox').onclick=()=>document.getElementById('lightbox').style.display='none';
+
+// ═══════════════════════════════════════════════
+// VOICE TO TEXT
+// ═══════════════════════════════════════════════
+let recognition=null;let listening=false;
+function wireVoice(){
+  const btn=document.getElementById('voice-btn');
+  if(!btn)return;
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    btn.style.display='none';return;
+  }
+}
+function toggleVoice(){
+  const btn=document.getElementById('voice-btn');
+  const textarea=document.getElementById('j-text');
+  if(!btn||!textarea)return;
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    alert('Voice dictation not supported in this browser. Try Safari on iPhone or Chrome.');return;
+  }
+  if(listening){recognition&&recognition.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
+  recognition.onstart=()=>{listening=true;btn.classList.add('listening');btn.textContent='🔴 Listening… tap to stop'};
+  recognition.onresult=e=>{
+    let final='';let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    if(final)textarea.value+=final+' ';
+  };
+  recognition.onend=()=>{listening=false;btn.classList.remove('listening');btn.textContent='🎤 Dictate'};
+  recognition.onerror=()=>{listening=false;btn.classList.remove('listening');btn.textContent='🎤 Dictate'};
+  recognition.start();
+}
+
+// ═══════════════════════════════════════════════
+// PRE-TRIP CHECKLIST
+// ═══════════════════════════════════════════════
+function addCheck(cat,inp){
+  if(!inp.value.trim())return;
+  const id='custom-'+Date.now();
+  PRE_TRIP_CHECKS.push({id,cat,text:inp.value.trim()});
+  inp.value='';render();
+}
+
+// ═══════════════════════════════════════════════
+// MOBILE NAV
+// ═══════════════════════════════════════════════
+document.getElementById('hamburger').onclick=()=>{
+  renderNav();
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('scrim').classList.toggle('show');
+};
+document.getElementById('scrim').onclick=closeSidebar;
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
